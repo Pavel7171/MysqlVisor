@@ -50,15 +50,18 @@ public class LoginPage extends JFrame {
         add(roofPanel,BorderLayout.NORTH);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
+        setResizable(false);
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String urlValue = urlInput.getText();
                 String userValue = userInput.getText();
                 String password = String.valueOf(userPass.getPassword());
-                if(urlValue.equals("1.1.1.1")&userValue.equals("java")&password.equals("java")){
+                if(urlValue.equals("1")&userValue.equals("java")&password.equals("java")){
                     System.out.println("ok");
+                    setVisible(false);
+                    BaseSelectPage baseSelectPage = new BaseSelectPage();
+                    baseSelectPage.setVisible(true);
                 }else {
                     msg.setText("Incorrect input, try again");
                     msg.setForeground(Color.red);
