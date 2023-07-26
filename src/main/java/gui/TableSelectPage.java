@@ -45,14 +45,14 @@ public class TableSelectPage extends JFrame {
         mainPanelTableSelectPage.add(textPanel);
         mainPanelTableSelectPage.add(scrollerForListOfTable);
         mainPanelTableSelectPage.add(buttonPanel);
-        buttonSelect.setVisible(false);
+        buttonSelect.setEnabled(false);
         //Добавляем панель на фрейм
         add(mainPanelTableSelectPage);
         //Действие при выборе данных на листе (пока ничего не выбрано кнопка "Выбрать" недоступна)
         tableList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                buttonSelect.setVisible(true);
+                buttonSelect.setEnabled(true);
             }
         });
         //Действие при нажатии на кнопку "Выбрать" -> Переход на новый фрейм

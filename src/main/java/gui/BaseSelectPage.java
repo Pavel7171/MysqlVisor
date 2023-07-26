@@ -44,14 +44,15 @@ public class BaseSelectPage extends JFrame {
         mainPanelBaseSelectPage.add(textPanel);
         mainPanelBaseSelectPage.add(scrollerForListOfBase);
         mainPanelBaseSelectPage.add(buttonPanel);
-        buttonSelect.setVisible(false);
+        buttonSelect.setEnabled(false);
         //Добавляем панель на фрейм
         add(mainPanelBaseSelectPage);
         //Действие при выборе данных на листе (пока ничего не выбрано кнопка "Выбрать" недоступна)
         baseList.addListSelectionListener(new ListSelectionListener() { //кнопка выбрать только после переключения значения
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                buttonSelect.setVisible(true);
+                buttonSelect.setEnabled(true);
+
             }
         });
         //Действие при нажатии на кнопку "Выбрать" -> Переход на новый фрейм

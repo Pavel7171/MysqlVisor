@@ -1,6 +1,8 @@
 package gui;
 
 
+import logic.Connect;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -56,15 +58,16 @@ public class LoginPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String urlValue = urlInput.getText();
                 String userValue = userInput.getText();
-                String password = String.valueOf(userPass.getPassword());
-                if(urlValue.equals("1")&userValue.equals("java")&password.equals("java")){
-                    System.out.println("ok");
+                String passwordValue = String.valueOf(userPass.getPassword());
+                Connect connect = new Connect(urlValue, userValue, passwordValue);
+                connect.tryConnect();
+                if(connect.getMsg().equals("Ошибка подключения к серверу")){
+                    msg.setText(connect.getMsg());
+                    msg.setForeground(Color.red);
+                }else {
                     setVisible(false);
                     BaseSelectPage baseSelectPage = new BaseSelectPage();
                     baseSelectPage.setVisible(true);
-                }else {
-                    msg.setText("Incorrect input, try again");
-                    msg.setForeground(Color.red);
                 }
             }
         });
