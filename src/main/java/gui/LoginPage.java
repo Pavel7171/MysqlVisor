@@ -3,7 +3,6 @@ package gui;
 
 import logic.Base;
 import logic.Connect;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
