@@ -1,17 +1,27 @@
 package gui;
 
+import logic.Base;
+import logic.Connect;
+import logic.Table;
+
+import javax.management.BadStringOperationException;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 /**
  * @Author Pavel Yurov
  * 26.07.2023
  */
-public class BaseSelectPage extends JFrame {
+public class BaseSelectPage {
     private JPanel mainPanelBaseSelectPage,buttonPanel,textPanel;
     private JLabel textForBasePanel;
     private JButton buttonSelect;
@@ -19,17 +29,25 @@ public class BaseSelectPage extends JFrame {
     private JScrollPane scrollerForListOfBase;
     private final String textOnFooter = "Выберите базу для отображения таблиц ";
     private final String textOnButtonSelect = "Выбрать";
-
-
-    BaseSelectPage(){
+    Connect connectData;
+    private String baseName;
+    private List<String> baseLi;
+    BaseSelectPage(Connect connect){}
+    public BaseSelectPage(Connect connect, List<String> baseLi){
+        this.connectData=connect;
+        this.baseLi = baseLi;
+    }
+    public void showBaseSelectGui(List<String> list){
+        JFrame baseSelectFrame = new JFrame();
         //Устанавливаем размер,выход по Х, позицию в центре при старте
-        setSize(350,400);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        baseSelectFrame.setSize(350,400);
+        baseSelectFrame.setVisible(true);
+        baseSelectFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        baseSelectFrame.setLocationRelativeTo(null);
         //Добавляем компоненты
         textForBasePanel = new JLabel(textOnFooter); // - Текст на футере
         buttonSelect = new JButton(textOnButtonSelect);// - Текст в кнопке
-        baseList = new JList<>(getBaseName());// - Добавляем значения в List
+        baseList = new JList<>(list.toArray(new String[list.size()]));// - Добавляем значения в List
         scrollerForListOfBase = new JScrollPane();// - Панель прокрутки
         scrollerForListOfBase.setViewportView(baseList);
         baseList.setLayoutOrientation(JList.VERTICAL);
@@ -46,22 +64,29 @@ public class BaseSelectPage extends JFrame {
         mainPanelBaseSelectPage.add(buttonPanel);
         buttonSelect.setEnabled(false);
         //Добавляем панель на фрейм
-        add(mainPanelBaseSelectPage);
+        baseSelectFrame.add(mainPanelBaseSelectPage);
+
         //Действие при выборе данных на листе (пока ничего не выбрано кнопка "Выбрать" недоступна)
         baseList.addListSelectionListener(new ListSelectionListener() { //кнопка выбрать только после переключения значения
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 buttonSelect.setEnabled(true);
-
             }
         });
         //Действие при нажатии на кнопку "Выбрать" -> Переход на новый фрейм
         buttonSelect.addActionListener(new ActionListener() { //при нажатии на выбрать делаем видимым 2 панель
             @Override
             public void actionPerformed(ActionEvent e) {
-                TableSelectPage tableSelectPage = new TableSelectPage();
-                tableSelectPage.setVisible(true);
-                setVisible(false);
+                Table table = new Table(connectData,baseList.getSelectedValue());
+                try {
+                    table.getTableList(connectData,baseList.getSelectedValue());
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+                //Base base = new Base(baseList.getSelectedValue(),connectData);
+                TableSelectPage tableSelectPage = new TableSelectPage(connectData,table.getListOfTable());
+                tableSelectPage.showTableSelect();
+                baseSelectFrame.setVisible(false);
             }
         });
     }
@@ -69,17 +94,7 @@ public class BaseSelectPage extends JFrame {
 
 
 
-    public String[] getBaseName(){
-        String [] base = new String[]{"sfasfasdfsfs","dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"
-                ,"dfsdgsdgsdgs","dfsdgsqwdddddddddd","1d1d3d"};
-        return base;
-    }
+
 
 
 

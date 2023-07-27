@@ -1,26 +1,34 @@
 package gui;
 
 
+import logic.Base;
 import logic.Connect;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 /**
  * @Author Pavel Yurov
  * 25.07.2023
  */
-public class LoginPage extends JFrame {
+public class LoginPage {
+    JFrame loginFrame;
     JPanel mainPanel,buttonPanel,roofPanel;
     JButton okButton;
     JLabel url,user,pass,logo,msg;
     JTextField urlInput,userInput;
     JPasswordField userPass;
 
-    LoginPage(){
-        //add component
+    public void showLoginGui(){
+        // Задаем размеры фрейма
+        loginFrame = new JFrame("Gui");
+        loginFrame.setSize(500,200);
+        // Добавляем компоненты
         url = new JLabel("URL");
         user = new JLabel("User");
         pass = new JLabel("Password");
@@ -30,12 +38,11 @@ public class LoginPage extends JFrame {
         userInput = new JTextField();
         userPass = new JPasswordField();
         okButton = new JButton("Connect");
-
-        //add panel on frame
+        // Создаем панели
         mainPanel = new JPanel(new GridLayout(4,1));
         buttonPanel = new JPanel();
         roofPanel = new JPanel();
-        //add component on panels
+        // Добавляем компоненты на панель
         mainPanel.add(url);
         mainPanel.add(urlInput);
         mainPanel.add(user);
@@ -45,39 +52,35 @@ public class LoginPage extends JFrame {
         mainPanel.add(msg);
         buttonPanel.add(okButton);
         roofPanel.add(logo);
-
-        //add panels on frame
-        add(mainPanel,BorderLayout.CENTER);
-        add(buttonPanel,BorderLayout.SOUTH);
-        add(roofPanel,BorderLayout.NORTH);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
+        // Добавляем панели на фрейм
+        loginFrame.add(mainPanel,BorderLayout.CENTER);
+        loginFrame.add(buttonPanel,BorderLayout.SOUTH);
+        loginFrame.add(roofPanel,BorderLayout.NORTH);
+        loginFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        loginFrame.setLocationRelativeTo(null);
+        loginFrame.setResizable(false);
+        loginFrame.setVisible(true);
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String urlValue = urlInput.getText();
-                String userValue = userInput.getText();
-                String passwordValue = String.valueOf(userPass.getPassword());
-                Connect connect = new Connect(urlValue, userValue, passwordValue);
-                connect.tryConnect();
-                if(connect.getMsg().equals("Ошибка подключения к серверу")){
-                    msg.setText(connect.getMsg());
+                Connect connectData = new Connect(urlInput.getText(), userInput.getText(), String.valueOf(userPass.getPassword()));
+                connectData.tryConnect();
+                if(connectData.getMsg().equals("Ошибка подключения к серверу")){
+                    msg.setText(connectData.getMsg());
                     msg.setForeground(Color.red);
                 }else {
-                    setVisible(false);
-                    BaseSelectPage baseSelectPage = new BaseSelectPage();
-                    baseSelectPage.setVisible(true);
+                    loginFrame.setVisible(false);
+                    Base baseSelect = new Base(null,connectData);
+                    try {
+                        baseSelect.showBases(connectData);
+                        BaseSelectPage baseSelectPage = new BaseSelectPage(connectData,baseSelect.getListOfBase());
+                        baseSelectPage.showBaseSelectGui(baseSelect.getListOfBase());
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
                 }
             }
         });
     }
-
-    public static void main(String[] args) {
-        LoginPage loginPage = new LoginPage();
-        loginPage.setVisible(true);
-        loginPage.setSize(500,200);
-
-    }
-
 }

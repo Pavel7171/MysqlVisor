@@ -1,17 +1,23 @@
 package gui;
 
+import logic.Connect;
+import logic.Table;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 /**
  * @Author Pavel Yurov
  * 26.07.2023
  */
-public class TableSelectPage extends JFrame {
+public class TableSelectPage {
 
     private JPanel mainPanelTableSelectPage, buttonPanel, textPanel;
     private JLabel textForTablePanel;
@@ -20,17 +26,24 @@ public class TableSelectPage extends JFrame {
     private JScrollPane scrollerForListOfTable;
     private final String textOnFooter = "Выберите таблицу и нажмите \"Показать данные\" ";
     private final String textOnButtonSelect = "Показать данные";
+    private List<String> tableLi;
+    Connect connect;
+    public TableSelectPage(Connect connect, List<String> tableLi){
+        this.tableLi=tableLi;
+        this.connect=connect;
+    }
 
 
-    TableSelectPage() {
+     public  void showTableSelect() {
+         JFrame tableSelectFrame = new JFrame();
         //Устанавливаем размер,выход по Х, позицию в центре при старте
-        setSize(350, 400);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+         tableSelectFrame.setSize(350, 400);
+         tableSelectFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+         tableSelectFrame.setLocationRelativeTo(null);
         //Добавляем компоненты
         textForTablePanel = new JLabel(textOnFooter); // - Текст на футере
         buttonSelect = new JButton(textOnButtonSelect);// - Текст в кнопке
-        tableList = new JList<>(getTableName());// - Добавляем значения в List
+        tableList = new JList<>(tableLi.toArray(new String[tableLi.size()]));// - Добавляем значения в List
         scrollerForListOfTable = new JScrollPane();// - Панель прокрутки
         scrollerForListOfTable.setViewportView(tableList);
         tableList.setLayoutOrientation(JList.VERTICAL);
@@ -47,7 +60,8 @@ public class TableSelectPage extends JFrame {
         mainPanelTableSelectPage.add(buttonPanel);
         buttonSelect.setEnabled(false);
         //Добавляем панель на фрейм
-        add(mainPanelTableSelectPage);
+         tableSelectFrame.add(mainPanelTableSelectPage);
+         tableSelectFrame.setVisible(true);
         //Действие при выборе данных на листе (пока ничего не выбрано кнопка "Выбрать" недоступна)
         tableList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -59,20 +73,10 @@ public class TableSelectPage extends JFrame {
         buttonSelect.addActionListener(new ActionListener() { //при нажатии на выбрать делаем видимым 2 панель
         @Override
         public void actionPerformed(ActionEvent e) {
-            TableSelectPage tableSelectPage = new TableSelectPage();
-            tableSelectPage.setVisible(true);
-            setVisible(false);
+            //TableSelectPage tableSelectPage = new TableSelectPage();
+            //tableSelectPage.setVisible(true);
+            tableSelectFrame.setVisible(false);
         }
     });
 }
-
-    public String[] getTableName() {
-        String[] table = new String[]{"sfasfasdfsfs", "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"
-                , "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"
-                , "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"
-                , "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"
-                , "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"
-                , "dfsdgsdgsdgs", "dfsdgsqwdddddddddd", "1d1d3d"};
-        return table;
-    }
 }
