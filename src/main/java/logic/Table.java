@@ -12,15 +12,6 @@ import java.util.List;
 public class Table {
     private String base;
     private Object connect;
-
-    public List<String> getListOfTable() {
-        return listOfTable;
-    }
-
-    public void setListOfTable(List<String> listOfTable) {
-        this.listOfTable = listOfTable;
-    }
-
     private List<String> listOfTable;
     public Table(Connect connect,String base){
         this.base=base;
@@ -36,6 +27,12 @@ public class Table {
         }
         setListOfTable(listOfTable);
         return this.getListOfTable();
+    }
+    public List<String> getListOfTable() {
+        return listOfTable;
+    }
 
+    public void setListOfTable(List<String> listOfTable) {
+        this.listOfTable = listOfTable;
     }
 }

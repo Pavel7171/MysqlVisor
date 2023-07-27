@@ -32,7 +32,6 @@ public class BaseSelectPage {
     Connect connectData;
     private String baseName;
     private List<String> baseLi;
-    BaseSelectPage(Connect connect){}
     public BaseSelectPage(Connect connect, List<String> baseLi){
         this.connectData=connect;
         this.baseLi = baseLi;
@@ -65,7 +64,6 @@ public class BaseSelectPage {
         buttonSelect.setEnabled(false);
         //Добавляем панель на фрейм
         baseSelectFrame.add(mainPanelBaseSelectPage);
-
         //Действие при выборе данных на листе (пока ничего не выбрано кнопка "Выбрать" недоступна)
         baseList.addListSelectionListener(new ListSelectionListener() { //кнопка выбрать только после переключения значения
             @Override
@@ -83,7 +81,6 @@ public class BaseSelectPage {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-                //Base base = new Base(baseList.getSelectedValue(),connectData);
                 TableSelectPage tableSelectPage = new TableSelectPage(connectData,table.getListOfTable());
                 tableSelectPage.showTableSelect();
                 baseSelectFrame.setVisible(false);

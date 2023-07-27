@@ -32,8 +32,6 @@ public class TableSelectPage {
         this.tableLi=tableLi;
         this.connect=connect;
     }
-
-
      public  void showTableSelect() {
          JFrame tableSelectFrame = new JFrame();
         //Устанавливаем размер,выход по Х, позицию в центре при старте
@@ -73,8 +71,7 @@ public class TableSelectPage {
         buttonSelect.addActionListener(new ActionListener() { //при нажатии на выбрать делаем видимым 2 панель
         @Override
         public void actionPerformed(ActionEvent e) {
-            //TableSelectPage tableSelectPage = new TableSelectPage();
-            //tableSelectPage.setVisible(true);
+
             tableSelectFrame.setVisible(false);
         }
     });

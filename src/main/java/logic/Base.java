@@ -19,9 +19,6 @@ import java.util.List;
 public class Base {
     private String baseName;
     private Object connectData;
-
-
-
     private List<String> listOfBase;
     public Base(String baseName, Object connect){
         this.baseName=baseName;

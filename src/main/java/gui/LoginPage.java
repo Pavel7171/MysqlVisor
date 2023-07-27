@@ -77,7 +77,6 @@ public class LoginPage {
                     } catch (SQLException ex) {
                         throw new RuntimeException(ex);
                     }
-
                 }
             }
         });
