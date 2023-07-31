@@ -83,7 +83,6 @@ public class TableSelectPage {
                 ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
-
         }
     });
 }

@@ -12,21 +12,14 @@ import java.util.Vector;
  */
 public class ConnectObj {
     private String url,user,pass; //172.22.235.118
-    Connection connect;
-    Statement statement;
+    private Statement statement;
     private List<String> listOfBase;
     private List<String> listOfTable;
-    JTable fullTable;
-    JTable searchTable;
-    String msg;
-
-
-
-    int countRow;
-
-
-    Vector<String> columnName;
-
+    private JTable fullTable;
+    private JTable searchTable;
+    private String msg;
+    private int countRow;
+    private Vector<String> columnName;
     private String baseName,tableName;
     public ConnectObj(String url, String user, String pass){
         this.url=url;
@@ -71,8 +64,8 @@ public class ConnectObj {
         return this.getListOfTable();
     }
     public JTable showDataFromTable(ConnectObj connectObj) throws SQLException {
-        ArrayList columnNames = new ArrayList();
-        ArrayList data = new ArrayList();
+        ArrayList<String> columnNames = new ArrayList<>();
+        ArrayList<Object> data = new ArrayList<>();
         connectObj.setUrl("jdbc:mysql://"+connectObj.getUrl()+"/"+connectObj.getBaseName());
         Connection connection = DriverManager.getConnection(getUrl(),getUser(),getPass());
         String sqlQuery = "SELECT * FROM "+connectObj.getTableName();
@@ -91,10 +84,8 @@ public class ConnectObj {
             }
             data.add(row);
         }
-
-        Vector columnNamesVector = new Vector();
+        Vector columnNamesVector = new Vector<>();
         Vector dataVector = new Vector();
-
         for (int i = 0; i < data.size(); i++) {
             ArrayList subArray = (ArrayList) data.get(i);
             Vector subVector = new Vector();
@@ -106,21 +97,14 @@ public class ConnectObj {
         for (int i = 0; i < columnNames.size(); i++)
             columnNamesVector.add(columnNames.get(i));
             setColumnName(columnNamesVector);
-        JTable table = new JTable(dataVector, columnNamesVector)
-        {
-            public Class getColumnClass(int column)
-
-            {
-                for (int row = 0; row < getRowCount(); row++)
-                {
+        JTable table = new JTable(dataVector, columnNamesVector) {
+            public Class getColumnClass(int column) {
+                for (int row = 0; row < getRowCount(); row++) {
                     Object o = getValueAt(row, column);
-
-                    if (o != null)
-                    {
+                    if (o != null) {
                         return o.getClass();
                     }
                 }
-
                 return Object.class;
             }
         };
@@ -149,10 +133,8 @@ public class ConnectObj {
             countRow++;
         }
         setCountRow(countRow);
-
         Vector columnNamesVector = new Vector();
         Vector dataVector = new Vector();
-
         for (int i = 0; i < data.size(); i++) {
             ArrayList subArray = (ArrayList) data.get(i);
             Vector subVector = new Vector();
@@ -163,16 +145,11 @@ public class ConnectObj {
         }
         for (int i = 0; i < columnNames.size(); i++)
             columnNamesVector.add(columnNames.get(i));
-            JTable searchTable = new JTable(dataVector, columnNamesVector)
-        {
-            public Class getColumnClass(int column)
-            {
-                for (int row = 0; row < getRowCount(); row++)
-                {
+            JTable searchTable = new JTable(dataVector, columnNamesVector) {
+            public Class getColumnClass(int column) {
+                for (int row = 0; row < getRowCount(); row++) {
                     Object o = getValueAt(row, column);
-
-                    if (o != null)
-                    {
+                    if (o != null) {
                         return o.getClass();
                     }
                 }
@@ -182,101 +159,28 @@ public class ConnectObj {
         setSearchTable(searchTable);
         return this.getSearchTable();
     }
-    public JTable getSearchTable() {
-        return searchTable;
-    }
-
-    public void setSearchTable(JTable searchTable) {
-        this.searchTable = searchTable;
-    }
-
-    public JTable getFullTable() {
-        return fullTable;
-    }
-
-    public void setFullTable(JTable fullTable) {
-        this.fullTable = fullTable;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
-    public String getBaseName() {
-        return baseName;
-    }
-
-    public void setBaseName(String baseName) {
-        this.baseName = baseName;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-    public Statement getStatement() {
-        return statement;
-    }
-
-    public void setStatement(Statement statement) {
-        this.statement = statement;
-    }
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-    public List<String> getListOfBase() {
-        return listOfBase;
-    }
-
-    public void setListOfBase(List<String> listOfBase) {
-        this.listOfBase = listOfBase;
-    }
-
-    public List<String> getListOfTable() {
-        return listOfTable;
-    }
-
-    public void setListOfTable(List<String> listOfTable) {
-        this.listOfTable = listOfTable;
-    }
-    public Vector<String> getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(Vector<String> columnName) {
-        this.columnName = columnName;
-    }
-    public int getCountRow() {
-        return countRow;
-    }
-
-    public void setCountRow(int countRow) {
-        this.countRow = countRow;
-    }
+    public JTable getSearchTable() {return searchTable;}
+    public void setSearchTable(JTable searchTable) {this.searchTable = searchTable;}
+    public JTable getFullTable() {return fullTable;}
+    public void setFullTable(JTable fullTable) {this.fullTable = fullTable;}
+    public String getUrl() {return url;}
+    public void setUrl(String url) {this.url = url;}
+    public String getUser() {return user;}
+    public String getPass() {return pass;}
+    public String getBaseName() {return baseName;}
+    public void setBaseName(String baseName) {this.baseName = baseName;}
+    public String getTableName() {return tableName;}
+    public void setTableName(String tableName) {this.tableName = tableName;}
+    public Statement getStatement() {return statement;}
+    public void setStatement(Statement statement) {this.statement = statement;}
+    public String getMsg() {return msg;}
+    public void setMsg(String msg) {this.msg = msg;}
+    public List<String> getListOfBase() {return listOfBase;}
+    public void setListOfBase(List<String> listOfBase) {this.listOfBase = listOfBase;}
+    public List<String> getListOfTable() {return listOfTable;}
+    public void setListOfTable(List<String> listOfTable) {this.listOfTable = listOfTable;}
+    public Vector<String> getColumnName() {return columnName;}
+    public void setColumnName(Vector<String> columnName) {this.columnName = columnName;}
+    public int getCountRow() {return countRow;}
+    public void setCountRow(int countRow) {this.countRow = countRow;}
 }

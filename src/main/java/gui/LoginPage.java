@@ -22,7 +22,6 @@ public class LoginPage {
     JLabel url,user,pass,logo,msg;
     JTextField urlInput,userInput;
     JPasswordField userPass;
-
     public void showLoginGui(){
         // Задаем размеры фрейма
         loginFrame = new JFrame("Gui");

@@ -14,18 +14,15 @@ import java.util.Vector;
  * 27.07.2023
  */
 public class WorkPage {
-    Vector data;
-    Vector columnName;
-    ConnectObj connect;
-    String table;
-    String base;
+    private Vector data;
+    private Vector columnName;
+    private ConnectObj connect;
+    private String table;
+    private String base;
     JTable jTable;
-    String searchText;
-    JScrollPane scrollPaneSearch;
-    JScrollPane scrollPane;
-
-
-
+    private String searchText;
+    private JScrollPane scrollPaneSearch;
+    private JScrollPane scrollPane;
     public WorkPage(JTable jTable, ConnectObj connectObj){
         this.jTable=jTable;
         this.connect=connectObj;
@@ -67,9 +64,6 @@ public class WorkPage {
         searchActionPanel.add(searchCount);
         searchActionPanel.add(searchButton);
         searchActionPanel.add(cancelSearchButton);
-
-
-
 
         workPageFrame.setVisible(true);
 
