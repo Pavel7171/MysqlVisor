@@ -1,6 +1,4 @@
-import gui.BaseSelectPage;
 import gui.LoginPage;
-import logic.Connect;
 
 
 import java.sql.SQLException;
@@ -10,7 +8,7 @@ import java.sql.SQLException;
  * 25.07.2023
  */
 public class App {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
         LoginPage loginPage = new LoginPage();
         loginPage.showLoginGui();
     }

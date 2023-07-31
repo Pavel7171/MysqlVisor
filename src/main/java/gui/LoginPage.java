@@ -1,8 +1,8 @@
 package gui;
 
 
-import logic.Base;
-import logic.Connect;
+import logic.ConnectObj;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -62,21 +62,20 @@ public class LoginPage {
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Connect connectData = new Connect(urlInput.getText(), userInput.getText(), String.valueOf(userPass.getPassword()));
-                connectData.tryConnect();
-                if(connectData.getMsg().equals("Ошибка подключения к серверу")){
-                    msg.setText(connectData.getMsg());
+                ConnectObj connectObj = new ConnectObj(urlInput.getText(), userInput.getText(), String.valueOf(userPass.getPassword()));
+                connectObj.tryConnect();
+                if(connectObj.getMsg().equals("Ошибка подключения к серверу")){
+                    msg.setText(connectObj.getMsg());
                     msg.setForeground(Color.red);
                 }else {
                     loginFrame.setVisible(false);
-                    Base baseSelect = new Base(null,connectData);
                     try {
-                        baseSelect.showBases(connectData);
-                        BaseSelectPage baseSelectPage = new BaseSelectPage(connectData,baseSelect.getListOfBase());
-                        baseSelectPage.showBaseSelectGui(baseSelect.getListOfBase());
+                        connectObj.showBases(connectObj);
                     } catch (SQLException ex) {
                         throw new RuntimeException(ex);
                     }
+                    BaseSelectPage baseSelectPage = new BaseSelectPage(connectObj,connectObj.getListOfBase());
+                    baseSelectPage.showBaseSelectGui(connectObj.getListOfBase());
                 }
             }
         });

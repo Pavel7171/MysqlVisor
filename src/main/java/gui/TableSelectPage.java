@@ -1,7 +1,6 @@
 package gui;
 
-import logic.Connect;
-import logic.Table;
+import logic.ConnectObj;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -9,6 +8,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.List;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -27,10 +27,12 @@ public class TableSelectPage {
     private final String textOnFooter = "Выберите таблицу и нажмите \"Показать данные\" ";
     private final String textOnButtonSelect = "Показать данные";
     private List<String> tableLi;
-    Connect connect;
-    public TableSelectPage(Connect connect, List<String> tableLi){
+    String base;
+    ConnectObj connect;
+    public TableSelectPage(ConnectObj connectObj, List<String> tableLi, String base){
+        this.base=base;
         this.tableLi=tableLi;
-        this.connect=connect;
+        this.connect=connectObj;
     }
      public  void showTableSelect() {
          JFrame tableSelectFrame = new JFrame();
@@ -71,8 +73,17 @@ public class TableSelectPage {
         buttonSelect.addActionListener(new ActionListener() { //при нажатии на выбрать делаем видимым 2 панель
         @Override
         public void actionPerformed(ActionEvent e) {
-
             tableSelectFrame.setVisible(false);
+            connect.setTableName(tableList.getSelectedValue());
+            try {
+                connect.showDataFromTable(connect);
+                WorkPage workPage = new WorkPage(connect.getFullTable(),connect);
+                workPage.showWorkPage(workPage.jTable);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
+
         }
     });
 }

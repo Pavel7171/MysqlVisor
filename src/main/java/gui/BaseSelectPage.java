@@ -1,17 +1,13 @@
 package gui;
 
-import logic.Base;
-import logic.Connect;
-import logic.Table;
+import logic.ConnectObj;
 
-import javax.management.BadStringOperationException;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -29,11 +25,11 @@ public class BaseSelectPage {
     private JScrollPane scrollerForListOfBase;
     private final String textOnFooter = "Выберите базу для отображения таблиц ";
     private final String textOnButtonSelect = "Выбрать";
-    Connect connectData;
+    ConnectObj connectData;
     private String baseName;
     private List<String> baseLi;
-    public BaseSelectPage(Connect connect, List<String> baseLi){
-        this.connectData=connect;
+    public BaseSelectPage(ConnectObj connectObj, List<String> baseLi){
+        this.connectData=connectObj;
         this.baseLi = baseLi;
     }
     public void showBaseSelectGui(List<String> list){
@@ -75,15 +71,16 @@ public class BaseSelectPage {
         buttonSelect.addActionListener(new ActionListener() { //при нажатии на выбрать делаем видимым 2 панель
             @Override
             public void actionPerformed(ActionEvent e) {
-                Table table = new Table(connectData,baseList.getSelectedValue());
                 try {
-                    table.getTableList(connectData,baseList.getSelectedValue());
+                    connectData.showTables(connectData,baseList.getSelectedValue());
+                    connectData.setBaseName(baseList.getSelectedValue());
+                    TableSelectPage tableSelectPage = new TableSelectPage(connectData,connectData.getListOfTable(),baseList.getSelectedValue());
+                    tableSelectPage.showTableSelect();
+                    baseSelectFrame.setVisible(false);
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-                TableSelectPage tableSelectPage = new TableSelectPage(connectData,table.getListOfTable());
-                tableSelectPage.showTableSelect();
-                baseSelectFrame.setVisible(false);
+
             }
         });
     }
