@@ -20,11 +20,12 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 public class BaseSelectPage {
     private JPanel mainPanelBaseSelectPage,buttonPanel,textPanel;
     private JLabel textForBasePanel;
-    private JButton buttonSelect;
+    private JButton buttonSelect,buttonDown;
     private JList<String> baseList;
     private JScrollPane scrollerForListOfBase;
     private final String textOnFooter = "Выберите базу для отображения таблиц ";
     private final String textOnButtonSelect = "Выбрать";
+    private final String textOnButtonDown = "Назад";
     ConnectObj connectData;
     private String baseName;
     private List<String> baseLi;
@@ -42,15 +43,17 @@ public class BaseSelectPage {
         //Добавляем компоненты
         textForBasePanel = new JLabel(textOnFooter); // - Текст на футере
         buttonSelect = new JButton(textOnButtonSelect);// - Текст в кнопке
+        buttonDown = new JButton(textOnButtonDown);
         baseList = new JList<>(list.toArray(new String[list.size()]));// - Добавляем значения в List
         scrollerForListOfBase = new JScrollPane();// - Панель прокрутки
         scrollerForListOfBase.setViewportView(baseList);
         baseList.setLayoutOrientation(JList.VERTICAL);
         //Создаем панель
         mainPanelBaseSelectPage = new JPanel(); // - Общая панель для фрейма
-        mainPanelBaseSelectPage.setLayout(new GridLayout(3,1,10,10));
-        buttonPanel = new JPanel();// - панель для кнопки
+        mainPanelBaseSelectPage.setLayout(new GridLayout(4,1,10,10));
+        buttonPanel = new JPanel(new GridLayout(2,1,10,10));// - панель для кнопки
         buttonPanel.add(buttonSelect);
+        buttonPanel.add(buttonDown);
         textPanel = new JPanel();// - панель для текста
         textPanel.add(textForBasePanel);
         //Добавляем компоненты на панель
@@ -81,6 +84,14 @@ public class BaseSelectPage {
                     throw new RuntimeException(ex);
                 }
 
+            }
+        });
+        buttonDown.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                baseSelectFrame.setVisible(false);
+                LoginPage loginPage = new LoginPage();
+                loginPage.showLoginGui();
             }
         });
     }
