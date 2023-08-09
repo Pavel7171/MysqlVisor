@@ -1,12 +1,8 @@
 package gui;
 
-
-import logic.ConnectObj;
-
+import logic.MysqlActionController;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -16,66 +12,53 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
  * 25.07.2023
  */
 public class LoginPage {
-    JFrame loginFrame;
-    JPanel mainPanel,buttonPanel,roofPanel;
-    JButton okButton;
-    JLabel url,user,pass,logo,msg;
-    JTextField urlInput,userInput;
-    JPasswordField userPass;
     public void showLoginGui(){
-        // Задаем размеры фрейма
-        loginFrame = new JFrame("Gui");
-        loginFrame.setSize(500,200);
-        // Добавляем компоненты
-        url = new JLabel("URL");
-        user = new JLabel("User");
-        pass = new JLabel("Password");
-        logo = new JLabel("MySQL Visor");
-        msg = new JLabel();
-        urlInput = new JTextField();
-        userInput = new JTextField();
-        userPass = new JPasswordField();
-        okButton = new JButton("Connect");
-        // Создаем панели
-        mainPanel = new JPanel(new GridLayout(4,1));
-        buttonPanel = new JPanel();
-        roofPanel = new JPanel();
-        // Добавляем компоненты на панель
-        mainPanel.add(url);
-        mainPanel.add(urlInput);
-        mainPanel.add(user);
-        mainPanel.add(userInput);
-        mainPanel.add(pass);
-        mainPanel.add(userPass);
-        mainPanel.add(msg);
-        buttonPanel.add(okButton);
-        roofPanel.add(logo);
-        // Добавляем панели на фрейм
-        loginFrame.add(mainPanel,BorderLayout.CENTER);
-        loginFrame.add(buttonPanel,BorderLayout.SOUTH);
-        loginFrame.add(roofPanel,BorderLayout.NORTH);
-        loginFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        loginFrame.setLocationRelativeTo(null);
-        loginFrame.setResizable(false);
-        loginFrame.setVisible(true);
-        okButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ConnectObj connectObj = new ConnectObj(urlInput.getText(), userInput.getText(), String.valueOf(userPass.getPassword()));
-                connectObj.tryConnect();
-                if(connectObj.getMsg().equals("Ошибка подключения к серверу")){
-                    msg.setText(connectObj.getMsg());
-                    msg.setForeground(Color.red);
-                }else {
-                    loginFrame.setVisible(false);
-                    try {
-                        connectObj.showBases(connectObj);
-                    } catch (SQLException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    BaseSelectPage baseSelectPage = new BaseSelectPage(connectObj,connectObj.getListOfBase());
-                    baseSelectPage.showBaseSelectGui(connectObj.getListOfBase());
+        JFrame loginPageFrame = new JFrame("MySQL Visor");
+        loginPageFrame.setSize(500,200);
+        JLabel textUrl = new JLabel("URL");
+        JLabel textUser = new JLabel("User");
+        JLabel textPassword = new JLabel("Password");
+        JLabel textLogo = new JLabel("Authorization on MySQL server");
+        JLabel errorMessage = new JLabel();
+        JTextField urlInputField = new JTextField();
+        JTextField userInputField = new JTextField();
+        JPasswordField passwordInputField = new JPasswordField();
+        JButton connectButton = new JButton("Connect");
+        JPanel userInputPanel = new JPanel(new GridLayout(4, 1));
+        JPanel buttonPanel = new JPanel();
+        JPanel textLogoPanel = new JPanel();
+        userInputPanel.add(textUrl);
+        userInputPanel.add(urlInputField);
+        userInputPanel.add(textUser);
+        userInputPanel.add(userInputField);
+        userInputPanel.add(textPassword);
+        userInputPanel.add(passwordInputField);
+        userInputPanel.add(errorMessage);
+        buttonPanel.add(connectButton);
+        textLogoPanel.add(textLogo);
+        loginPageFrame.add(userInputPanel,BorderLayout.CENTER);
+        loginPageFrame.add(buttonPanel,BorderLayout.SOUTH);
+        loginPageFrame.add(textLogoPanel,BorderLayout.NORTH);
+        loginPageFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        loginPageFrame.setLocationRelativeTo(null);
+        loginPageFrame.setResizable(false);
+        loginPageFrame.setVisible(true);
+
+        connectButton.addActionListener(e -> {
+            MysqlActionController mysqlActionController = new MysqlActionController(urlInputField.getText(), userInputField.getText(), String.valueOf(passwordInputField.getPassword()));
+            mysqlActionController.tryConnect();
+            if(mysqlActionController.getMsg().equals("Ошибка подключения к серверу")){
+                errorMessage.setText(mysqlActionController.getMsg());
+                errorMessage.setForeground(Color.red);
+            }else {
+                loginPageFrame.dispose();
+                try {
+                    mysqlActionController.showBases(mysqlActionController);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
                 }
+                SelectBasePage selectBasePage = new SelectBasePage();
+                selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.getListOfBase());
             }
         });
     }
