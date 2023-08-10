@@ -9,7 +9,6 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.io.File;
-import java.sql.SQLException;
 /**
  * @Author Pavel Yurov
  * 27.07.2023
@@ -17,8 +16,8 @@ import java.sql.SQLException;
 public class ActionWithDataPage {
     public void showWorkPage(MysqlActionController mysqlActionController, JTable jTable) {
         JFrame actionWithDataFrame = new JFrame("MySQL Visor: "
-                +mysqlActionController.getBaseName()
-                +" -> "+mysqlActionController.getTableName());
+                +mysqlActionController.getSelectBaseName()
+                +" -> "+mysqlActionController.getSelectTableName());
         actionWithDataFrame.setSize(800, 600);
         actionWithDataFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         actionWithDataFrame.setLocationRelativeTo(null);
@@ -65,36 +64,27 @@ public class ActionWithDataPage {
         });
 
         updateFrameButton.addActionListener(e -> {
-            try {
                 showWorkPage(mysqlActionController, mysqlActionController.showDataFromTable(mysqlActionController));
                 actionWithDataFrame.dispose();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(actionWithDataFrame,ex.getMessage());
-            }
         });
 
         downloadFileButton.addActionListener(e -> {
             JFileChooser jFileChooser = new JFileChooser();
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV (Comma-Separated Values)", "csv");
-            jFileChooser.setFileFilter(filter);
-            int ret = jFileChooser.showDialog(null, "Открыть файл");
-            if (ret == JFileChooser.APPROVE_OPTION) {
+            FileNameExtensionFilter fileFormat = new FileNameExtensionFilter("CSV (Comma-Separated Values)", "csv");
+            jFileChooser.setFileFilter(fileFormat);
+            int approveOptionForChooser = jFileChooser.showDialog(null, "Открыть файл");
+            if (approveOptionForChooser == JFileChooser.APPROVE_OPTION) {
                 File file = jFileChooser.getSelectedFile();
-                mysqlActionController.downloadData(mysqlActionController, file.getAbsolutePath());
+                mysqlActionController.downloadDataFromTable(mysqlActionController, file.getAbsolutePath());
                 jFileChooser.setVisible(false);
-                try {
-                    showWorkPage(mysqlActionController, mysqlActionController.showDataFromTable(mysqlActionController));
-                    actionWithDataFrame.dispose();
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                showWorkPage(mysqlActionController, mysqlActionController.showDataFromTable(mysqlActionController));
+                actionWithDataFrame.dispose();
             }
         });
 
-
         backToTablePageButton.addActionListener(e -> {
             SelectTablePage selectTablePage = new SelectTablePage();
-            selectTablePage.showTableSelect(mysqlActionController, mysqlActionController.getListOfTable(), null);
+            selectTablePage.showTableSelect(mysqlActionController, mysqlActionController.getTableList(), null);
             actionWithDataFrame.dispose();
         });
 
@@ -105,37 +95,34 @@ public class ActionWithDataPage {
                 if (text.trim().length() == 0) {
                     rowSorter.setRowFilter(null);
                 } else {
-                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    if(text.equals("+")||text.equals("-")||text.equals(".")){
+                        text = "["+text+"]";
+                    }
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?iu)" + text));
+                    System.out.println();
                 }
             }
-
             @Override
             public void removeUpdate(DocumentEvent e) {
                 String text = inputSearchField.getText();
                 if (text.trim().length() == 0) {
                     rowSorter.setRowFilter(null);
                 } else {
-                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    if(text.equals("+")||text.equals("-")||text.equals(".")){
+                        text = "["+text+"]";
+                    }
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?iu)" + text));
                 }
             }
-
             @Override
             public void changedUpdate(DocumentEvent e) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
         });
         jTable.getModel().addTableModelListener(e -> {
-            Object a = jTable.getCellEditor().getCellEditorValue(); //получение значения на что изменили
-            System.out.println(a.toString());
-            System.out.println(jTable.getSelectedColumn()); // получение индекса изменяемой колонки
-            System.out.println(jTable.getSelectedRow()); // получение индекса изменяемой строки
-            System.out.println(jTable.getValueAt(jTable.getSelectedRow(), 0)); //получение ID для запроса
-            try {
-                mysqlActionController.updateData(mysqlActionController, a, jTable.getSelectedColumn(), jTable.getValueAt(jTable.getSelectedRow(), 0));
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            Object valueChanged = jTable.getCellEditor().getCellEditorValue();
+            mysqlActionController.changeDataInTable(mysqlActionController, valueChanged, jTable.getSelectedColumn(), jTable.getValueAt(jTable.getSelectedRow(), 0));
         });
     }
 }

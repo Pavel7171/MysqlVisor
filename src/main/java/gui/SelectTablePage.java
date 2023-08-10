@@ -4,7 +4,6 @@ import logic.MysqlActionController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
 import java.util.List;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -15,7 +14,7 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
  */
 public class SelectTablePage {
      public void showTableSelect(MysqlActionController mysqlActionController, List<String> tableLi, String baseName) {
-         JFrame selectTableFrame = new JFrame("Select Table in "+mysqlActionController.getBaseName());
+         JFrame selectTableFrame = new JFrame("Select Table in "+mysqlActionController.getSelectBaseName());
          selectTableFrame.setSize(350, 400);
          selectTableFrame.setVisible(true);
          selectTableFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -44,21 +43,16 @@ public class SelectTablePage {
 
          selectButton.addActionListener(e -> {
             selectTableFrame.dispose();
-            mysqlActionController.setTableName(tableList.getSelectedValue());
-            try {
-                mysqlActionController.showDataFromTable(mysqlActionController);
-                ActionWithDataPage actionWithDataPage = new ActionWithDataPage();
-                actionWithDataPage.showWorkPage(mysqlActionController,mysqlActionController.showDataFromTable(mysqlActionController));
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                throw new RuntimeException(ex);
-            }
+            mysqlActionController.setSelectTableName(tableList.getSelectedValue());
+             mysqlActionController.showDataFromTable(mysqlActionController);
+             ActionWithDataPage actionWithDataPage = new ActionWithDataPage();
+             actionWithDataPage.showWorkPage(mysqlActionController,mysqlActionController.showDataFromTable(mysqlActionController));
          });
 
          backToBaseSelectPage.addActionListener(e -> {
              selectTableFrame.dispose();
              SelectBasePage selectBasePage = new SelectBasePage();
-             selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.getListOfBase());
+             selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.getBaseList());
          });
      }
 }

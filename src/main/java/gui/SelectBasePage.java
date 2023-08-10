@@ -4,7 +4,6 @@ import logic.MysqlActionController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
 import java.util.List;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -43,15 +42,11 @@ public class SelectBasePage {
         baseList.addListSelectionListener(e -> selectButton.setEnabled(true));
 
         selectButton.addActionListener(e -> {
-            try {
-                mysqlActionController.setBaseName(baseList.getSelectedValue());
-                mysqlActionController.showTables(mysqlActionController,baseList.getSelectedValue());
-                SelectTablePage selectTablePage = new SelectTablePage();
-                selectTablePage.showTableSelect(mysqlActionController,mysqlActionController.getListOfTable(),baseList.getSelectedValue());
-                selectBaseFrame.dispose();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
+            mysqlActionController.setSelectBaseName(baseList.getSelectedValue());
+            mysqlActionController.showTablesInSelectBase(mysqlActionController,baseList.getSelectedValue());
+            SelectTablePage selectTablePage = new SelectTablePage();
+            selectTablePage.showTableSelect(mysqlActionController,mysqlActionController.showTablesInSelectBase(mysqlActionController,mysqlActionController.getSelectBaseName()),baseList.getSelectedValue());
+            selectBaseFrame.dispose();
         });
 
         backToLoginPage.addActionListener(e -> {

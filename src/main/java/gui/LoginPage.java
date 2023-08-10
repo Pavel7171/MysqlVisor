@@ -3,7 +3,6 @@ package gui;
 import logic.MysqlActionController;
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -46,19 +45,16 @@ public class LoginPage {
 
         connectButton.addActionListener(e -> {
             MysqlActionController mysqlActionController = new MysqlActionController(urlInputField.getText(), userInputField.getText(), String.valueOf(passwordInputField.getPassword()));
-            mysqlActionController.tryConnect();
-            if(mysqlActionController.getMsg().equals("Ошибка подключения к серверу")){
-                errorMessage.setText(mysqlActionController.getMsg());
+            mysqlActionController.tryServerConnect();
+            if(mysqlActionController.getCheckQueryResultMessage().equals("Error")){
+                JOptionPane.showMessageDialog(loginPageFrame,"Invalid connect from "+mysqlActionController.getUrl()+" , try again ");
+                errorMessage.setText("Error to connect... "+mysqlActionController.getUrl());
                 errorMessage.setForeground(Color.red);
             }else {
                 loginPageFrame.dispose();
-                try {
-                    mysqlActionController.showBases(mysqlActionController);
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
                 SelectBasePage selectBasePage = new SelectBasePage();
-                selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.getListOfBase());
+                selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.showBases(mysqlActionController));
+                mysqlActionController.showBases(mysqlActionController);
             }
         });
     }

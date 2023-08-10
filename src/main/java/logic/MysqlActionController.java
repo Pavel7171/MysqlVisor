@@ -15,178 +15,196 @@ import java.util.regex.Pattern;
  * 31.07.2023
  */
 public class MysqlActionController {
-    private String url,user,pass; //172.22.235.118
-    private Statement statement;
-    private List<String> listOfBase;
-    private List<String> listOfTable;
+    private String url;//172.21.114.198
+    private final String user;
+    private final String password;
+    private Statement connectStatement;
+    private List<String> baseList;
+    private List<String> tableList;
     private JTable fullTable;
-    private JTable searchTable;
-    private String msg;
+    private String checkQueryResultMessage;
     private int countRow;
-    private Vector<String> columnName;
-    private String baseName,tableName;
-    public MysqlActionController(String url, String user, String pass){
+    private Vector <String> tableColumnName;
+    private String selectBaseName, selectTableName;
+    public MysqlActionController(String url, String user, String password){
         this.url=url;
         this.user=user;
-        this.pass=pass;
+        this.password = password;
     }
-    public String tryConnect(){
+    public void tryServerConnect(){
         if (url != null) {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                Connection conn = DriverManager.getConnection("jdbc:mysql://"+url, user, pass);
-                setStatement(conn.createStatement());
-                setMsg(String.valueOf(conn.getWarnings()));
+                Connection connection = DriverManager.getConnection("jdbc:mysql://"+url ,user ,password);
+                setConnectStatement(connection.createStatement());
+                setCheckQueryResultMessage(String.valueOf(connection.getWarnings()));
             } catch (SQLException | ClassNotFoundException ex) {
-                setMsg("Ошибка подключения к серверу");
+                setCheckQueryResultMessage("Error");
             }
         }
-        return this.getMsg();
     }
 
-    public List<String> showBases(MysqlActionController mysqlActionController) throws SQLException{
-        String sqlQuery ="SHOW DATABASES";
-        ResultSet resultSet = mysqlActionController.getStatement().executeQuery(sqlQuery);
-        List<String> listBase = new ArrayList<>();
-        while (resultSet.next()) {
-            String data = resultSet.getString(1);
-            listBase.add(data);
+    public List<String> showBases(MysqlActionController mysqlActionController){
+        String sqlQueryShowBases ="SHOW DATABASES";
+        List<String> listOfBase,errorListOfBase;
+        try{
+            ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQueryShowBases);
+            listOfBase = new ArrayList<>();
+            while (resultSet.next()) {
+                String baseName = resultSet.getString(1);
+                listOfBase.add(baseName);
+            }
+            resultSet.close();
+            setBaseList(listOfBase);
+        }catch (Exception e){
+            errorListOfBase = new ArrayList<>();
+            errorListOfBase.add(0,e.getMessage());
+            setBaseList(errorListOfBase);
         }
-        setListOfBase(listBase);
-        return this.getListOfBase();
+        return this.getBaseList();
     }
 
-    public List<String> showTables(MysqlActionController mysqlActionController, String baseName) throws SQLException {
-        String sqlQuery = "SHOW TABLES from "+baseName;
-        ResultSet resultSet = mysqlActionController.getStatement().executeQuery(sqlQuery);
-        List<String> listOfTable = new ArrayList<>();
-        while (resultSet.next()) {
-            String data = resultSet.getString(1);
-            listOfTable.add(data);
+    public List<String> showTablesInSelectBase(MysqlActionController mysqlActionController, String baseName) {
+        String sqlQueryShowTablesFromBase = "SHOW TABLES from "+baseName;
+        List<String> listOfTable,errorListOfTable;
+        try{
+            ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQueryShowTablesFromBase);
+            listOfTable = new ArrayList<>();
+            while (resultSet.next()) {
+                String tableName = resultSet.getString(1);
+                listOfTable.add(tableName);
+            }
+            resultSet.close();
+            setTableList(listOfTable);
+        }catch (Exception e){
+            errorListOfTable = new ArrayList<>();
+            errorListOfTable.add(0,e.getMessage());
+            setTableList(errorListOfTable);
         }
-        setListOfTable(listOfTable);
-        return this.getListOfTable();
+        return this.getTableList();
     }
-    public JTable showDataFromTable(MysqlActionController mysqlActionController) throws SQLException {
+    public JTable showDataFromTable(MysqlActionController mysqlActionController){
         ArrayList<String> columnNames = new ArrayList<>();
         ArrayList<Object> data = new ArrayList<>();
-        mysqlActionController.setUrl("jdbc:mysql://"+ mysqlActionController.getUrl()+"/"+ mysqlActionController.getBaseName());
-        String sqlQuery = "SELECT * FROM "+ mysqlActionController.getBaseName()+"."+ mysqlActionController.getTableName();
-        ResultSet resultSet = mysqlActionController.getStatement().executeQuery(sqlQuery);
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columns = metaData.getColumnCount();
-        //  Get column names
-        for (int i = 1; i <= columns; i++) {
-            columnNames.add(metaData.getColumnName(i));
-        }
-        //  Get row data
-        while (resultSet.next()) {
-            ArrayList row = new ArrayList(columns);
+        try{
+            mysqlActionController.setUrl("jdbc:mysql://"+ mysqlActionController.getUrl()+"/"+ mysqlActionController.getSelectBaseName());
+            String sqlQuerySelectDataFromTable = "SELECT * FROM "+ mysqlActionController.getSelectBaseName()+"."+ mysqlActionController.getSelectTableName();
+            ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQuerySelectDataFromTable);
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columns = metaData.getColumnCount();
             for (int i = 1; i <= columns; i++) {
-                row.add(resultSet.getObject(i));
+                columnNames.add(metaData.getColumnName(i));
             }
-            data.add(row);
-        }
-        Vector columnNamesVector = new Vector<>();
-        Vector dataVector = new Vector();
-        for (int i = 0; i < data.size(); i++) {
-            ArrayList subArray = (ArrayList) data.get(i);
-            Vector subVector = new Vector();
-            for (int j = 0; j < subArray.size(); j++) {
-                subVector.add(subArray.get(j));
-            }
-            dataVector.add(subVector);
-        }
-        for (int i = 0; i < columnNames.size(); i++)
-            columnNamesVector.add(columnNames.get(i));
-            setColumnName(columnNamesVector);
-        JTable table = new JTable(dataVector, columnNamesVector) {
-            public Class getColumnClass(int column) {
-                for (int row = 0; row < mysqlActionController.countRow; row++) {
-                    Object o = getValueAt(row, column);
-                    if (o != null) {
-                        return o.getClass();
-                    }
+            while (resultSet.next()) {
+                ArrayList <Object> row = new ArrayList<>(columns);
+                for (int i = 1; i <= columns; i++) {
+                    row.add(resultSet.getObject(i));
                 }
-                return Object.class;
+                data.add(row);
             }
-        };
-        table.setPreferredSize(null);
-        setFullTable(table);
+            Vector <Vector> dataVector = new Vector<>();
+            for (Object datum : data) {
+                ArrayList subArray = (ArrayList) datum;
+                Vector subVector = new Vector<>(subArray);
+                dataVector.add(subVector);
+            }
+            Vector<String> columnNamesVector = new Vector<>(columnNames);
+            setTableColumnName(columnNamesVector);
+            setCountRow(mysqlActionController.countRow);
+            JTable table = new JTable(dataVector, columnNamesVector) {
+                public Class getColumnClass(int column) {
+                    for (int row = 0; row < mysqlActionController.getCountRow(); row++) {
+                        Object o = getValueAt(row, column);
+                        if (o != null) {
+                            return o.getClass();
+                        }
+                    }
+                    return Object.class;
+                }
+            };
+            table.setPreferredSize(null);
+            setFullTable(table);
+            resultSet.close();
+        }catch (Exception e){
+            JTable jTableErrorLog = new JTable();
+            setFullTable(jTableErrorLog);
+        }
         return this.getFullTable();
     }
-    public void updateData(MysqlActionController mysqlActionController, Object changeData, int columnIndex, Object idIndex) throws SQLException {
-        String sqlQuery ="UPDATE "+ mysqlActionController.getBaseName()+"."+ mysqlActionController.getTableName()+" SET "+ mysqlActionController.getColumnName().get(columnIndex)+" = "+"'"+changeData+"'"+" WHERE id = "+idIndex;
-        mysqlActionController.getStatement().executeUpdate(sqlQuery);
-        System.out.println("OK");
+    public void changeDataInTable(MysqlActionController mysqlActionController, Object changeData, int columnIndex, Object idIndex) {
+        String sqlQueryChangeDataInTable ="UPDATE "+ mysqlActionController.getSelectBaseName()+"."
+                + mysqlActionController.getSelectTableName()+" SET "
+                + mysqlActionController.getTableColumnName().get(columnIndex)+" = "
+                +"'"+changeData+"'"+" WHERE ID = "+idIndex;
+        try{
+            mysqlActionController.getConnectStatement().executeUpdate(sqlQueryChangeDataInTable);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
-    public void downloadData(MysqlActionController mysqlActionController, String pathToFile){
+    public void downloadDataFromTable(MysqlActionController mysqlActionController, String pathToFile){
         String path = pathToFile.replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
-        System.out.println(getColumnName().size());
         int maxId=0;
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
-            String line = bufferedReader.readLine();
-            while (line !=null){
-                String sqlQueryMaxId = "SELECT MAX(ID) FROM "+ mysqlActionController.getBaseName()+"."+getTableName();
-                ResultSet resultSet = mysqlActionController.getStatement().executeQuery(sqlQueryMaxId);
+            String lineRow = bufferedReader.readLine();
+            while (lineRow !=null){
+                String sqlQueryMaxId = "SELECT MAX(ID) FROM "+ mysqlActionController.getSelectBaseName()+"."+ getSelectTableName();
+                ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQueryMaxId);
                 if(resultSet.next()){
-                    System.out.println(resultSet.getInt(1));
-                    maxId =resultSet.getInt(1)+1; //получение ID
-                    String sqlAddId = "INSERT INTO "+ mysqlActionController.getBaseName()+"."+getTableName()+" ("+columnName.get(0)+") "+"values ('"+maxId+"')";
-                    System.out.println(sqlAddId);
-                    mysqlActionController.getStatement().executeUpdate(sqlAddId);
+                    maxId =resultSet.getInt(1)+1;
+                    String sqlQuery = "INSERT INTO "+ mysqlActionController.getSelectBaseName()
+                            +"."+ getSelectTableName()
+                            +" ("+ tableColumnName.get(0)+") "+"values ('"+maxId+"')";
+                    mysqlActionController.getConnectStatement().executeUpdate(sqlQuery);
                 }
-                String[] arrayFileData = line.split(",");
+                String[] arrayFileData = lineRow.split(",");
                 for(int j =0;j<arrayFileData.length;j++){
-                    String elem =arrayFileData[j].toString().replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
+                    String elem = arrayFileData[j].replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
                     arrayFileData[j]=elem;
                 }
-                for(int i = 2; i<= mysqlActionController.columnName.size(); i++){
-
-                    String sqlAddData = "UPDATE "+ mysqlActionController.getBaseName()+"."+getTableName()+" SET "+columnName.get(i-1)+" = "+"'"+arrayFileData[i-2]+"'"+" WHERE "+columnName.get(0)+" = "+"'"+maxId+"'";
-                    System.out.println(sqlAddData);
-                    mysqlActionController.getStatement().executeUpdate(sqlAddData);
+                for(int i = 2; i<= mysqlActionController.tableColumnName.size(); i++){
+                    String sqlAddData = "UPDATE "+ mysqlActionController.getSelectBaseName()+
+                            "."+ getSelectTableName()+" SET "+ tableColumnName.get(i-1)
+                            +" = "+"'"+arrayFileData[i-2]+"'"+" WHERE "+ tableColumnName.get(0)
+                            +" = "+"'"+maxId+"'";
+                    mysqlActionController.getConnectStatement().executeUpdate(sqlAddData);
                 }
-                line=bufferedReader.readLine();
+                lineRow=bufferedReader.readLine();
             }
         }catch (Exception e){
             e.printStackTrace();
         }
     }
     public void deleteData(MysqlActionController mysqlActionController, Object id) {
-        String sqlQueryDeleteRow = "DELETE FROM "+ mysqlActionController.getBaseName()+"."+getTableName()+" WHERE "+columnName.get(0)+" = "+id;
-        System.out.println("Ok");
+        String sqlQueryDeleteRow = "DELETE FROM "
+                + mysqlActionController.getSelectBaseName()+"."
+                + getSelectTableName()+" WHERE "+ tableColumnName.get(0)+" = "+id;
         try {
-            mysqlActionController.getStatement().executeUpdate(sqlQueryDeleteRow);
+            mysqlActionController.getConnectStatement().executeUpdate(sqlQueryDeleteRow);
         }catch (Exception e){
-
+            System.out.println(e.getMessage());
         }
     }
-
-    public JTable getSearchTable() {return searchTable;}
-    public void setSearchTable(JTable searchTable) {this.searchTable = searchTable;}
     public JTable getFullTable() {return fullTable;}
     public void setFullTable(JTable fullTable) {this.fullTable = fullTable;}
     public String getUrl() {return url;}
     public void setUrl(String url) {this.url = url;}
-    public String getUser() {return user;}
-    public String getPass() {return pass;}
-    public String getBaseName() {return baseName;}
-    public void setBaseName(String baseName) {this.baseName = baseName;}
-    public String getTableName() {return tableName;}
-    public void setTableName(String tableName) {this.tableName = tableName;}
-    public Statement getStatement() {return statement;}
-    public void setStatement(Statement statement) {this.statement = statement;}
-    public String getMsg() {return msg;}
-    public void setMsg(String msg) {this.msg = msg;}
-    public List<String> getListOfBase() {return listOfBase;}
-    public void setListOfBase(List<String> listOfBase) {this.listOfBase = listOfBase;}
-    public List<String> getListOfTable() {return listOfTable;}
-    public void setListOfTable(List<String> listOfTable) {this.listOfTable = listOfTable;}
-    public Vector<String> getColumnName() {return columnName;}
-    public void setColumnName(Vector<String> columnName) {this.columnName = columnName;}
+    public String getSelectBaseName() {return selectBaseName;}
+    public void setSelectBaseName(String selectBaseName) {this.selectBaseName = selectBaseName;}
+    public String getSelectTableName() {return selectTableName;}
+    public void setSelectTableName(String selectTableName) {this.selectTableName = selectTableName;}
+    public Statement getConnectStatement() {return connectStatement;}
+    public void setConnectStatement(Statement connectStatement) {this.connectStatement = connectStatement;}
+    public String getCheckQueryResultMessage() {return checkQueryResultMessage;}
+    public void setCheckQueryResultMessage(String checkQueryResultMessage) {this.checkQueryResultMessage = checkQueryResultMessage;}
+    public List<String> getBaseList() {return baseList;}
+    public void setBaseList(List<String> baseList) {this.baseList = baseList;}
+    public List<String> getTableList() {return tableList;}
+    public void setTableList(List<String> tableList) {this.tableList = tableList;}
+    public Vector<String> getTableColumnName() {return tableColumnName;}
+    public void setTableColumnName(Vector<String> tableColumnName) {this.tableColumnName = tableColumnName;}
     public int getCountRow() {return countRow;}
-    public void setCountRow(int countRow) {this.countRow = countRow;}
+    public void setCountRow(int countRow){this.countRow=countRow;}
 }
