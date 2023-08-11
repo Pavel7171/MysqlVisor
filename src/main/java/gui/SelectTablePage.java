@@ -13,8 +13,9 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
  * 26.07.2023
  */
 public class SelectTablePage {
-     public void showTableSelect(MysqlActionController mysqlActionController, List<String> tableLi, String baseName) {
-         JFrame selectTableFrame = new JFrame("Select Table in "+mysqlActionController.getSelectBaseName());
+     public void showTableSelect(MysqlActionController mysqlActionController, List<String> tableLi) {
+         String baseName = mysqlActionController.getSelectBaseName();
+         JFrame selectTableFrame = new JFrame("Select Table in "+ baseName);
          selectTableFrame.setSize(350, 400);
          selectTableFrame.setVisible(true);
          selectTableFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);

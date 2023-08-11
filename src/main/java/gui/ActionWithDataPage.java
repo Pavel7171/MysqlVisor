@@ -69,22 +69,27 @@ public class ActionWithDataPage {
         });
 
         downloadFileButton.addActionListener(e -> {
+            int count = mysqlActionController.getTableColumnName().size()-1;
+            JOptionPane.showMessageDialog(actionWithDataFrame,"The number of comma separated values must be equal to "+ count);
             JFileChooser jFileChooser = new JFileChooser();
             FileNameExtensionFilter fileFormat = new FileNameExtensionFilter("CSV (Comma-Separated Values)", "csv");
             jFileChooser.setFileFilter(fileFormat);
             int approveOptionForChooser = jFileChooser.showDialog(null, "Открыть файл");
             if (approveOptionForChooser == JFileChooser.APPROVE_OPTION) {
                 File file = jFileChooser.getSelectedFile();
-                mysqlActionController.downloadDataFromTable(mysqlActionController, file.getAbsolutePath());
-                jFileChooser.setVisible(false);
-                showWorkPage(mysqlActionController, mysqlActionController.showDataFromTable(mysqlActionController));
-                actionWithDataFrame.dispose();
+                if(mysqlActionController.downloadDataFromTable(mysqlActionController, file.getAbsolutePath()).equals("File uploaded successfully")){
+                    jFileChooser.setVisible(false);
+                    showWorkPage(mysqlActionController, mysqlActionController.showDataFromTable(mysqlActionController));
+                    actionWithDataFrame.dispose();
+                }else {
+                    JOptionPane.showMessageDialog(actionWithDataFrame,mysqlActionController.downloadDataFromTable(mysqlActionController, file.getAbsolutePath()));
+                }
             }
         });
 
         backToTablePageButton.addActionListener(e -> {
             SelectTablePage selectTablePage = new SelectTablePage();
-            selectTablePage.showTableSelect(mysqlActionController, mysqlActionController.getTableList(), null);
+            selectTablePage.showTableSelect(mysqlActionController, mysqlActionController.getTableList());
             actionWithDataFrame.dispose();
         });
 

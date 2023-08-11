@@ -1,6 +1,0 @@
-1 Отрефакторить ActionWithDataPage - 10.08 OK
-2 Отрефакторить MySqlActionController - 10.08 OK
-3 Подразбить методы в MySqlActionController
-4 В методы MySqlActionController добавить возвращающиеся значения
-5 Опционально - переделать ответ при попытке подключения к серверу
-6 Написать тесты

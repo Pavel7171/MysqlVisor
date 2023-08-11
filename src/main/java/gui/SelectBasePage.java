@@ -45,7 +45,7 @@ public class SelectBasePage {
             mysqlActionController.setSelectBaseName(baseList.getSelectedValue());
             mysqlActionController.showTablesInSelectBase(mysqlActionController,baseList.getSelectedValue());
             SelectTablePage selectTablePage = new SelectTablePage();
-            selectTablePage.showTableSelect(mysqlActionController,mysqlActionController.showTablesInSelectBase(mysqlActionController,mysqlActionController.getSelectBaseName()),baseList.getSelectedValue());
+            selectTablePage.showTableSelect(mysqlActionController,mysqlActionController.showTablesInSelectBase(mysqlActionController,mysqlActionController.getSelectBaseName()));
             selectBaseFrame.dispose();
         });
 

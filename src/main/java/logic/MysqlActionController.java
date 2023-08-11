@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +41,6 @@ public class MysqlActionController {
             }
         }
     }
-
     public List<String> showBases(MysqlActionController mysqlActionController){
         String sqlQueryShowBases ="SHOW DATABASES";
         List<String> listOfBase,errorListOfBase;
@@ -142,40 +139,67 @@ public class MysqlActionController {
             System.out.println(e.getMessage());
         }
     }
-
-    public void downloadDataFromTable(MysqlActionController mysqlActionController, String pathToFile){
-        String path = pathToFile.replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
-        int maxId=0;
+    private String checkDataFormatDownloadFile(String pathToFile){
+        String msg = "OK";
+        Set<Integer> arrayLengthRepeat = new HashSet<>();
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(pathToFile));
             String lineRow = bufferedReader.readLine();
-            while (lineRow !=null){
-                String sqlQueryMaxId = "SELECT MAX(ID) FROM "+ mysqlActionController.getSelectBaseName()+"."+ getSelectTableName();
-                ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQueryMaxId);
-                if(resultSet.next()){
-                    maxId =resultSet.getInt(1)+1;
-                    String sqlQuery = "INSERT INTO "+ mysqlActionController.getSelectBaseName()
-                            +"."+ getSelectTableName()
-                            +" ("+ tableColumnName.get(0)+") "+"values ('"+maxId+"')";
-                    mysqlActionController.getConnectStatement().executeUpdate(sqlQuery);
-                }
+            while (lineRow!=null){
                 String[] arrayFileData = lineRow.split(",");
-                for(int j =0;j<arrayFileData.length;j++){
-                    String elem = arrayFileData[j].replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
-                    arrayFileData[j]=elem;
-                }
-                for(int i = 2; i<= mysqlActionController.tableColumnName.size(); i++){
-                    String sqlAddData = "UPDATE "+ mysqlActionController.getSelectBaseName()+
-                            "."+ getSelectTableName()+" SET "+ tableColumnName.get(i-1)
-                            +" = "+"'"+arrayFileData[i-2]+"'"+" WHERE "+ tableColumnName.get(0)
-                            +" = "+"'"+maxId+"'";
-                    mysqlActionController.getConnectStatement().executeUpdate(sqlAddData);
+                arrayLengthRepeat.add(arrayFileData.length);
+                if(arrayLengthRepeat.size()>1){
+                    msg ="Error";
+                }else {
+                    msg = "OK";
                 }
                 lineRow=bufferedReader.readLine();
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+        return msg;
+    }
+    public String downloadDataFromTable(MysqlActionController mysqlActionController, String pathToFile){
+        String answerQuery = null;
+        String path = pathToFile.replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
+        if(checkDataFormatDownloadFile(path).equals("OK")){
+            int maxId=0;
+            try {
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+                String lineRow = bufferedReader.readLine();
+                while (lineRow !=null){
+                    String sqlQueryMaxId = "SELECT MAX(ID) FROM "+ mysqlActionController.getSelectBaseName()+"."+ getSelectTableName();
+                    ResultSet resultSet = mysqlActionController.getConnectStatement().executeQuery(sqlQueryMaxId);
+                    if(resultSet.next()){
+                        maxId =resultSet.getInt(1)+1;
+                        String sqlQuery = "INSERT INTO "+ mysqlActionController.getSelectBaseName()
+                                +"."+ getSelectTableName()
+                                +" ("+ tableColumnName.get(0)+") "+"values ('"+maxId+"')";
+                        mysqlActionController.getConnectStatement().executeUpdate(sqlQuery);
+                    }
+                    String[] arrayFileData = lineRow.split(",");
+                    for(int j =0;j<arrayFileData.length;j++){
+                        String elem = arrayFileData[j].replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"));
+                        arrayFileData[j]=elem;
+                    }
+                    for(int i = 2; i<= mysqlActionController.tableColumnName.size(); i++){
+                        String sqlAddData = "UPDATE "+ mysqlActionController.getSelectBaseName()+
+                                "."+ getSelectTableName()+" SET "+ tableColumnName.get(i-1)
+                                +" = "+"'"+arrayFileData[i-2]+"'"+" WHERE "+ tableColumnName.get(0)
+                                +" = "+"'"+maxId+"'";
+                        mysqlActionController.getConnectStatement().executeUpdate(sqlAddData);
+                    }
+                    lineRow=bufferedReader.readLine();
+                }
+                answerQuery = "File uploaded successfully";
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else {
+            answerQuery = "The number of columns in the file does not correspond to the number of columns in the table\n";
+        }
+        return answerQuery;
     }
     public void deleteData(MysqlActionController mysqlActionController, Object id) {
         String sqlQueryDeleteRow = "DELETE FROM "
