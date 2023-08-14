@@ -48,7 +48,6 @@ public class SelectBasePage {
             selectTablePage.showTableSelect(mysqlActionController,mysqlActionController.showTablesInSelectBase(mysqlActionController,mysqlActionController.getSelectBaseName()));
             selectBaseFrame.dispose();
         });
-
         backToLoginPage.addActionListener(e -> {
             selectBaseFrame.dispose();
             LoginPage loginPage = new LoginPage();

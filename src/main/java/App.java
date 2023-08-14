@@ -1,6 +1,5 @@
 import gui.LoginPage;
 
-
 /**
  * @Author Pavel Yurov
  * 25.07.2023

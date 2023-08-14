@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * 31.07.2023
  */
 public class MysqlActionController {
-    private String url;//172.21.114.198
+    private String url;
     private final String user;
     private final String password;
     private Statement connectStatement;

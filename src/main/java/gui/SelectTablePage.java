@@ -56,4 +56,5 @@ public class SelectTablePage {
              selectBasePage.showBaseSelectGui(mysqlActionController,mysqlActionController.getBaseList());
          });
      }
+
 }

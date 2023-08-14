@@ -130,4 +130,5 @@ public class ActionWithDataPage {
             mysqlActionController.changeDataInTable(mysqlActionController, valueChanged, jTable.getSelectedColumn(), jTable.getValueAt(jTable.getSelectedRow(), 0));
         });
     }
+
 }
